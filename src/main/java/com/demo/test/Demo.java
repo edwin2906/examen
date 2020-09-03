@@ -11,7 +11,8 @@ import java.util.Properties;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.apache.log4j.Logger;
 
 public class Demo {
     private static boolean logToFile;
@@ -23,6 +24,7 @@ public class Demo {
     private boolean initialized;
     private static Map dbParams;
     private static Logger logger;
+    
 
     public Demo(boolean logToFileParam, boolean logToConsoleParam, boolean logToDatabaseParam,
                 boolean logMessageParam, boolean logWarningParam, boolean logErrorParam, Map dbParamsMap) {
@@ -53,8 +55,8 @@ public class Demo {
         connectionProps.put("user", dbParams.get("userName"));
         connectionProps.put("password", dbParams.get("password"));
 
-        connection = DriverManager.getConnection("jdbc:" + dbParams.get("dbms") + "://" + dbParams.get("serverName")
-                + ":" + dbParams.get("portNumber") + "/", connectionProps);
+//        connection = DriverManager.getConnection("jdbc:" + dbParams.get("dbms") + "://" + dbParams.get("serverName")
+//                + ":" + dbParams.get("portNumber") + "/", connectionProps);
 
         int t = 0;
         if (message && logMessage) {
@@ -69,7 +71,7 @@ public class Demo {
             t = 3;
         }
 
-        Statement stmt = connection.createStatement();
+        //Statement stmt = connection.createStatement();
 
         String l = null;
         File logFile = new File(dbParams.get("logFileFolder") + "/logFile.txt");
@@ -82,28 +84,29 @@ public class Demo {
 
         if (error && logError) {
             l = l + "error " + DateFormat.getDateInstance(DateFormat.LONG).format(new Date()) + messageText;
+            logger.error(l);
         }
 
         if (warning && logWarning) {
             l = l + "warning " +DateFormat.getDateInstance(DateFormat.LONG).format(new Date()) + messageText;
+            logger.warn(l);
         }
 
         if (message && logMessage) {
             l = l + "message " +DateFormat.getDateInstance(DateFormat.LONG).format(new Date()) + messageText;
+            logger.info(l);
         }
 
         if(logToFile) {
-            logger.addHandler(fh);
-            logger.log(Level.INFO, messageText);
+            logger.info(messageText);
         }
 
         if(logToConsole) {
-            logger.addHandler(ch);
-            logger.log(Level.INFO, messageText);
+            logger.info(messageText);
         }
 
         if(logToDatabase) {
-            stmt.executeUpdate("insert into Log_Values('" + message + "', " + String.valueOf(t) + ")");
+            //stmt.executeUpdate("insert into Log_Values('" + message + "', " + String.valueOf(t) + ")");
         }
     }
 }
